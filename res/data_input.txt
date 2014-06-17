@@ -1,0 +1,11 @@
+115
+500000
+
+.000126676862
+2050000000
+
+45.3592
+
+Possible mass of propelant: .248 or 5.704
+Possible cubic area: 0.001573162 or .09045681048
+Possible area of propelant: .002130274794
