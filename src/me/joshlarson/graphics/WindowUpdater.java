@@ -1,7 +1,6 @@
 package me.joshlarson.graphics;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +14,6 @@ import me.joshlarson.physics.Rocket;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.glu.GLU;
 
 class WindowUpdater implements Runnable {
 	
@@ -32,7 +30,8 @@ class WindowUpdater implements Runnable {
 	private Planet earth;
 	private Planet moon;
 	private Rocket rocket;
-	private double earthLockRotation;
+	private double earthLockRotationX;
+	private double earthLockRotationY;
 	private int earthTexture;
 	private int moonTexture;
 	
@@ -41,7 +40,8 @@ class WindowUpdater implements Runnable {
 		this.frameNum = 0;
 		this.running = false;
 		this.world = new World();
-		earthLockRotation = -1;
+		earthLockRotationX = -1;
+		earthLockRotationY = -1;
 		framesPerSecond = 0;
 		decimalFormat = new DecimalFormat("0.###E0");
 	}
@@ -65,12 +65,13 @@ class WindowUpdater implements Runnable {
 		world.drawString(String.format("Rocket Thrust: %s N", decimalFormat.format(rocket.totalThrust())), 5, world.getHeight() - 100);
 		world.enable3D();
 		physicsEngine.renderAll();
-		if (earthLockRotation != -1) {
+		if (earthLockRotationX != -1) {
 			final double distance = 30000;
-			final double angle = Math.toRadians(earth.getRotation() - earthLockRotation);
-			final double x = distance * Math.cos(angle);
-			final double z = distance * Math.sin(angle);
-			world.getCamera().setPosition((float) x, 0, (float) z);
+			final double angle = Math.toRadians(earth.getRotation() - earthLockRotationX);
+			final double x = distance * Math.cos(angle) * Math.cos(Math.toRadians(earthLockRotationY));
+			final double y = distance * Math.sin(Math.toRadians(earthLockRotationY));
+			final double z = distance * Math.sin(angle) * Math.cos(Math.toRadians(earthLockRotationY));
+			world.getCamera().setPosition((float) x, (float) y, (float) z);
 		} else {
 			world.getCamera().setPosition((float)earth.getX(), (float)earth.getY()+1000000, (float)earth.getZ()+100);
 		}
@@ -104,15 +105,20 @@ class WindowUpdater implements Runnable {
 			render();
 			Display.update();
 			if (isNewEvent(keyStates, Keyboard.KEY_L)) {
-				if (earthLockRotation == -1)
-					earthLockRotation = earth.getRotation();
+				if (earthLockRotationX == -1)
+					earthLockRotationX = earth.getRotation();
 				else
-					earthLockRotation = -1;
+					earthLockRotationX = -1;
+				earthLockRotationY = 0;
 			}
-			if (isNewEvent(keyStates, Keyboard.KEY_RIGHT))
-				world.getCamera().setRotation(world.getCamera().getRotation() + 5);
-			if (isNewEvent(keyStates, Keyboard.KEY_LEFT))
-				world.getCamera().setRotation(world.getCamera().getRotation() - 5);
+			if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
+				earthLockRotationX += 1;
+			if (Keyboard.isKeyDown(Keyboard.KEY_LEFT))
+				earthLockRotationX -= 1;
+			if (Keyboard.isKeyDown(Keyboard.KEY_UP))
+				earthLockRotationY += 1;
+			if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
+				earthLockRotationY -= 1;
 			frameNum++;
 			running = !Display.isCloseRequested();
 			framesPerSecond = framesPerSecond * .95 + .05 * (1 / ((System.nanoTime() - lastFrame) / 1E9));

@@ -7,6 +7,8 @@ import java.util.Date;
 
 public class UniverseDateFormat extends DateFormat {
 	
+	private static final long serialVersionUID = 765473251536038053L;
+	
 	@Override
 	public StringBuffer format(Date date, StringBuffer buf, FieldPosition fieldPosition) {
 		long time = date.getTime();
@@ -15,6 +17,9 @@ public class UniverseDateFormat extends DateFormat {
 		int seconds = (int) (time % 60);
 		int minutes = (int) ((time-seconds)/60 % 60);
 		int hours   = (int) ((time-seconds-minutes*60)/60/60 % 60);
+		int days    = (int) ((time-seconds-minutes*60-hours*24)/60/60/24 % 24);
+		addZeroes(buf, 2, days);
+		buf.append(":");
 		addZeroes(buf, 2, hours);
 		buf.append(":");
 		addZeroes(buf, 2, minutes);

@@ -1,7 +1,6 @@
 package me.joshlarson;
 
 import java.awt.Dimension;
-import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Toolkit;
